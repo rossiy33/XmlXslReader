@@ -1,0 +1,198 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	padding: 10px;
+	margin: 0;
+}
+
+.container {
+	max-width: 100%;
+	width: 100%;
+	margin: 0 auto;
+	background: white;
+	border-radius: 10px;
+	box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 20px);
+}
+
+.header {
+	background: #667eea;
+	color: white;
+	padding: 20px;
+	flex-shrink: 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.header-left {
+	flex: 0 0 auto;
+}
+
+.header-left h1 {
+	font-size: 28px;
+	margin-bottom: 5px;
+}
+
+.header-left p {
+	margin: 0;
+	font-size: 14px;
+	opacity: 0.9;
+}
+
+.header-right {
+	flex: 1;
+	text-align: right;
+	font-size: 14px;
+}
+
+.header-right p {
+	margin: 3px 0;
+}
+
+.drop-zone {
+	margin: 20px;
+	padding: 40px;
+	border: 3px dashed #ccc;
+	border-radius: 10px;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.3s;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.drop-zone.dragover {
+	border-color: #667eea;
+	background: #f0f4ff;
+}
+
+.drop-zone p {
+	color: #666;
+	font-size: 18px;
+}
+
+.drop-zone .icon {
+	font-size: 48px;
+	margin-bottom: 20px;
+	color: #667eea;
+}
+
+.content {
+	margin: 20px;
+	display: none;
+	flex: 1;
+	overflow: hidden;
+	min-height: 0;
+}
+
+.content.show {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+.file-list-pane {
+	flex: 0 0 300px;
+	flex-shrink: 0;
+	overflow: visible;
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 10px;
+}
+
+.file-list-pane.full-width {
+	flex: 1;
+}
+
+.xml-viewer {
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 20px;
+	overflow-y: auto;
+	overflow-x: auto;
+	flex: 1;
+	min-height: 0;
+}
+
+.xml-viewer pre {
+	margin: 0;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	font-family: 'Consolas', 'Monaco', monospace;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.print-btn {
+	margin: 0 20px 20px;
+	padding: 12px 24px;
+	background: #28a745;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	transition: background-color 0.3s;
+	flex-shrink: 0;
+}
+
+.print-btn:hover {
+	background: #218838;
+}
+
+@media print {
+	@page {
+		size: A4;
+		margin: 5mm;
+	}
+
+	body {
+		background: white;
+		padding: 0;
+		margin: 0;
+	}
+
+	.header,
+	.drop-zone,
+	.print-btn {
+		display: none !important;
+	}
+
+	.container {
+		box-shadow: none;
+		border-radius: 0;
+		height: auto;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.content {
+		margin: 0;
+		overflow: visible;
+		height: auto;
+		display: block;
+	}
+
+	.xml-viewer {
+		border: none;
+		background: white;
+		padding: 0;
+		overflow: visible;
+		transform-origin: top left;
+	}
+}
