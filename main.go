@@ -6,8 +6,12 @@ import (
 	"embed"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
-	"net/url"
+	"io/fs"
+	"log"
+	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +19,7 @@ import (
 	"github.com/jchv/go-webview2"
 )
 
-//go:embed frontend/*
+//go:embed frontend/* frontend/js/*
 var frontendFS embed.FS
 
 type FileContent struct {
@@ -33,24 +37,34 @@ type ZIPFileListResult struct {
 }
 
 func main() {
-	// フロントエンドファイルを読み込む
-	htmlBytes, _ := frontendFS.ReadFile("frontend/index.html")
-	appJSBytes, _ := frontendFS.ReadFile("frontend/app.js")
-	styleCSSBytes, _ := frontendFS.ReadFile("frontend/style.css")
+	// 埋め込みファイルシステムからHTTPサーバーを起動
+	fsys, err := fs.Sub(frontendFS, "frontend")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	htmlTemplate := string(htmlBytes)
-	appJS := string(appJSBytes)
-	styleCSS := string(styleCSSBytes)
+	// 空いているポートを見つける
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatal(err)
+	}
+	port := listener.Addr().(*net.TCPAddr).Port
+	listener.Close()
 
-	// HTMLテンプレートにCSSとJavaScriptを埋め込む
-	html := htmlTemplate
-	html = strings.Replace(html, `<link rel="stylesheet" href="style.css">`, `<style>`+styleCSS+`</style>`, 1)
-	html = strings.Replace(html, `<script src="app.js"></script>`, `<script>`+appJS+`</script>`, 1)
+	// HTTPサーバーを起動
+	serverURL := fmt.Sprintf("http://127.0.0.1:%d", port)
+	http.Handle("/", http.FileServer(http.FS(fsys)))
+
+	go func() {
+		if err := http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), nil); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	w := webview2.New(true) // デバッグモードON
 	defer w.Destroy()
 	w.SetTitle("XML/XSL Reader - WebView2")
-	w.SetSize(360, 500, webview2.HintFixed)
+	w.SetSize(500, 600, webview2.HintFixed)
 
 	// ウィンドウサイズを変更する関数をバインド
 	w.Bind("resizeWindow", func(width, height int) {
@@ -114,8 +128,8 @@ func main() {
 		return readFileFromZIPData(base64Data, fileName)
 	})
 
-	w.Navigate("data:text/html," + url.PathEscape(html))
-	w.SetSize(360, 500, webview2.HintFixed)
+	w.Navigate(serverURL)
+	w.SetSize(500, 600, webview2.HintFixed)
 	w.Run()
 }
 
@@ -280,8 +294,8 @@ func readFileFromZIP(zipPath, fileName string) string {
 		for _, f := range r.File {
 			// 完全一致、またはファイル名のみ一致でチェック
 			if strings.EqualFold(f.Name, xslPath) ||
-			   strings.EqualFold(f.Name, xslFileName) ||
-			   strings.EqualFold(filepath.Base(f.Name), xslFileName) {
+				strings.EqualFold(f.Name, xslFileName) ||
+				strings.EqualFold(filepath.Base(f.Name), xslFileName) {
 				rc, err := f.Open()
 				if err != nil {
 					result.Error = "XSLファイルの読み込みに失敗しました: " + err.Error()
@@ -380,8 +394,8 @@ func readFileFromZIPData(base64Data, fileName string) string {
 		for _, f := range r.File {
 			// 完全一致、またはファイル名のみ一致でチェック
 			if strings.EqualFold(f.Name, xslPath) ||
-			   strings.EqualFold(f.Name, xslFileName) ||
-			   strings.EqualFold(filepath.Base(f.Name), xslFileName) {
+				strings.EqualFold(f.Name, xslFileName) ||
+				strings.EqualFold(filepath.Base(f.Name), xslFileName) {
 				rc, err := f.Open()
 				if err != nil {
 					result.Error = "XSLファイルの読み込みに失敗しました: " + err.Error()
