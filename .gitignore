@@ -3,6 +3,7 @@
 
 # ビルド成果物
 build/
+release/
 *.exe
 *.dll
 *.so

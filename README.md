@@ -13,6 +13,11 @@ e-Govの書類を表示するためのツールです。
 - 📝 **長文対応** - `<pre>` タグ内テキストの自動折り返し
 - 🪟 **自動リサイズ** - コンテンツに応じたウィンドウサイズ調整
 
+## スクショ
+![top-page](https://raw.githubusercontent.com/rossiy33/XmlXslReader/images/image.png)
+
+![view-page](https://raw.githubusercontent.com/rossiy33/XmlXslReader/images/image2f.png)
+
 ## 使い方
 
 1. **アプリケーション起動** - `XmlXslReader.exe` を実行
